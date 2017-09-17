@@ -22,11 +22,12 @@ public class TapeFormatMatrix {
         this.diameter = diameter;
     }
 
+
     public void setB(Float[] b) {
         this.b = b;
     }
 
-    public Float[] calculateXVector(){
+    public Float[] calculateXVector() {
         int D1 = diameter - 1;
         for (int i = matrixSize - 2, i2 = 0; i2 < D1; i--, i2++)
             for (int k = i + 1, j = diameter - 1, i3 = 0; i3 <= i2; k++, j--, i3++)
@@ -60,6 +61,69 @@ public class TapeFormatMatrix {
         }
         return y;
     }
+
+    public void calculateLU() {
+
+        for (int i = 1; i < diameter; i++) {
+            float diag = 0;
+            for (int j = 0; j < i; j++) {
+                float sumL = 0;
+                float sumU = 0;
+                //Fixme
+                for (int k = 0; k < j; k++) {
+                    sumU += au[i][getIndexOfFirstAuBeforeDiameter(i) + k] * al[j][getIndexOfFirstAlBeforeDiameter(i) + k];
+                }
+                au[j][i] = (au[j][i] - sumU) / di[i - j];
+                for (int k = 0; k < j; k++) {
+                    sumL += al[i][getIndexOfFirstAlBeforeDiameter(i) + k] * au[j][getIndexOfFirstAuBeforeDiameter(i) + k];
+                }
+                al[i][j] -= sumL;
+                diag += al[i][j] * au[j][i];
+            }
+            di[i] -= diag;
+        }
+
+        for (int i = diameter; i < matrixSize; i++) {
+            float diag = 0;
+            for (int j = 0; j < diameter; j++) {
+                float sumL = 0;
+                float sumU = 0;
+                for (int k = 0; k < j; k++) {
+                    sumU += au[i][k] * al[j][k+1];
+                }
+                au[i - (diameter - j)][j] = (au[i - (diameter - j)][j] - sumU) / di[i - (diameter - j)];
+                for (int k = 0; k < j; k++) {
+                    sumL += al[i][k] * au[i - (diameter - j)][getIndexOfAu(i, j, i - (diameter - j)) + k];
+                }
+                al[i][j] -= sumL;
+                diag += al[i][j] * au[i][j];
+            }
+            di[i] -= diag;
+        }
+    }
+
+    private int getIndexOfFirstElInRowLU(int i, int j) {
+        int indx = diameter - (i - (diameter - j));
+//        return indx > 0 ? indx : 0;
+        return indx;
+    }
+
+    private int getIndexOfFirstAuBeforeDiameter(int column){
+        return diameter - column;
+    }
+    private int getIndexOfFirstAlBeforeDiameter(int i){
+        return diameter - i;
+    }
+    //Fixme не уверен на счёт -1
+    private int getIndexOfAu(int i, int j, int column) {
+        int zeroCountU = diameter - (i - column)-1;
+        if (zeroCountU > 0) {
+            return i - diameter - zeroCountU;
+        } else {
+            return getIndexOfFirstElInRowLU(i, j) + i - diameter;
+        }
+    }
+
 
     private int getIndexOfFirstElInRow(int i) {
         return diameter - i;

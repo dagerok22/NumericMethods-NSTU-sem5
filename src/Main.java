@@ -39,9 +39,10 @@ public class Main {
         readB();
         TapeFormatMatrix matrix = new TapeFormatMatrix(MATRIX_SIZE, al, au, di, DIAMETR);
         matrix.setB(b);
+        matrix.calculateLU();
         matrix.calculateYVector();
-        Float[] xVector = matrix.calculateXVector();
-        int i = xVector.hashCode();
+        matrix.calculateXVector();
+
     }
 
     private static void readAl(){

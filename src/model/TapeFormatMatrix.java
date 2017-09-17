@@ -66,19 +66,21 @@ public class TapeFormatMatrix {
 
         for (int i = 1; i < diameter; i++) {
             float diag = 0;
+            int indexOfFirstAlBeforeDiameter = getIndexOfFirstAlBeforeDiameter(i);
+            int indexOfFirstAuBeforeDiameter = getIndexOfFirstAuBeforeDiameter(i);
             for (int j = 0; j < i; j++) {
                 float sumL = 0;
                 float sumU = 0;
-                //Fixme
+                //Fixmediag += al[i][j] * au[i][j];
                 for (int k = 0; k < j; k++) {
-                    sumU += au[i][getIndexOfFirstAuBeforeDiameter(i) + k] * al[j][getIndexOfFirstAlBeforeDiameter(i) + k];
+                    sumU += au[i][indexOfFirstAuBeforeDiameter + k] * al[j][indexOfFirstAlBeforeDiameter + k];
                 }
-                au[j][i] = (au[j][i] - sumU) / di[i - j];
+                au[i][j] = (au[i][j] - sumU) / di[i - j];
                 for (int k = 0; k < j; k++) {
-                    sumL += al[i][getIndexOfFirstAlBeforeDiameter(i) + k] * au[j][getIndexOfFirstAuBeforeDiameter(i) + k];
+                    sumL += al[i][indexOfFirstAlBeforeDiameter + k] * au[j][indexOfFirstAuBeforeDiameter + k];
                 }
                 al[i][j] -= sumL;
-                diag += al[i][j] * au[j][i];
+                diag += al[i][indexOfFirstAlBeforeDiameter + j] * au[i][indexOfFirstAuBeforeDiameter + j];
             }
             di[i] -= diag;
         }
@@ -88,10 +90,12 @@ public class TapeFormatMatrix {
             for (int j = 0; j < diameter; j++) {
                 float sumL = 0;
                 float sumU = 0;
+                int countOfZerosU = i - diameter > 0 ? i - diameter : 0;
                 for (int k = 0; k < j; k++) {
-                    sumU += au[i][k] * al[j][k+1];
+                    sumU += au[i][k] * al[j + countOfZerosU][k + 1];
                 }
-                au[i - (diameter - j)][j] = (au[i - (diameter - j)][j] - sumU) / di[i - (diameter - j)];
+//                au[i - (diameter - j)][j] = (au[i - (diameter - j)][j] - sumU) / di[i - (diameter - j)];
+                au[i][j] = (au[i][j] - sumU) / di[i - (diameter - j)];
                 for (int k = 0; k < j; k++) {
                     sumL += al[i][k] * au[i - (diameter - j)][getIndexOfAu(i, j, i - (diameter - j)) + k];
                 }
@@ -108,15 +112,17 @@ public class TapeFormatMatrix {
         return indx;
     }
 
-    private int getIndexOfFirstAuBeforeDiameter(int column){
+    private int getIndexOfFirstAuBeforeDiameter(int column) {
         return diameter - column;
     }
-    private int getIndexOfFirstAlBeforeDiameter(int i){
+
+    private int getIndexOfFirstAlBeforeDiameter(int i) {
         return diameter - i;
     }
+
     //Fixme не уверен на счёт -1
     private int getIndexOfAu(int i, int j, int column) {
-        int zeroCountU = diameter - (i - column)-1;
+        int zeroCountU = diameter - (i - column) - 1;
         if (zeroCountU > 0) {
             return i - diameter - zeroCountU;
         } else {

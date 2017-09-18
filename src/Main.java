@@ -38,11 +38,8 @@ public class Main {
         readDI();
         readB();
         TapeFormatMatrix matrix = new TapeFormatMatrix(MATRIX_SIZE, al, au, di, DIAMETR);
-        matrix.setB(b);
-        matrix.calculateLU();
-        matrix.calculateYVector();
-        matrix.calculateXVector();
-
+        Float[] x = matrix.calculateAxEqualsB(b);
+        int length = x.length;
     }
 
     private static void readAl(){

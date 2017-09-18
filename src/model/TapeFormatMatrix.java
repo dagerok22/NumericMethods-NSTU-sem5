@@ -21,13 +21,18 @@ public class TapeFormatMatrix {
         this.di = di;
         this.diameter = diameter;
     }
-
-
-    public void setB(Float[] b) {
+    
+    
+    public Float[] calculateAxEqualsB(Float[] b){
         this.b = b;
+        calculateLU();
+        calculateYVector();
+        calculateXVector();
+        return b;
     }
 
-    public Float[] calculateXVector() {
+
+    private void calculateXVector() {
         int D1 = diameter - 1;
         for (int i = matrixSize - 2, i2 = 0; i2 < D1; i--, i2++)
             for (int k = i + 1, j = diameter - 1, i3 = 0; i3 <= i2; k++, j--, i3++)
@@ -36,14 +41,12 @@ public class TapeFormatMatrix {
         for (int i = matrixSize - diameter - 1; i >= 0; i--)
             for (int k = i + 1, j = diameter - 1; j >= 0; k++, j--)
                 b[i] -= au[k][j] * b[k];
-
-        return b;
     }
 
-    public Float[] calculateYVector() {
+    private void calculateYVector() {
         this.y = this.b;
         for (int i = 1; i < diameter; i++) {
-            float sum = 0f;
+            Float sum = 0f;
             int indx = getIndexOfFirstElInRow(i);
             for (int jl = indx; jl < diameter; jl++) {
                 sum += y[jl - indx] * al[i][jl];
@@ -52,21 +55,20 @@ public class TapeFormatMatrix {
         }
 
         for (int i = diameter; i < matrixSize; i++) {
-            float sum = 0f;
+            Float sum = 0f;
             int indx = getIndexOfFirstElInRow(i);
             for (int jl = 0, ja = i - diameter; ja < i; jl++, ja++) {
                 sum += y[jl - indx] * al[i][jl];
             }
             y[i] = (b[i] - sum) / di[i];
         }
-        return y;
     }
 
-    public void calculateLU() {
-        float sum;
+    private void calculateLU() {
+        Float sum;
         for (int i = 0; i < matrixSize; i++)
         {
-            sum = 0;
+            sum = 0f;
 
             for (int jL = 0, j = i - diameter; jL < diameter; jL++, j++)
             {
@@ -74,8 +76,8 @@ public class TapeFormatMatrix {
                 if (j < 0)
                     continue;
 
-                float sl = 0;
-                float su = 0;
+                Float sl = 0f;
+                Float su = 0f;
 
                 int ik = 0;
                 int kj = i - j;

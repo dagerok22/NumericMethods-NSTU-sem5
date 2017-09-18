@@ -17,8 +17,8 @@ public class Main {
     private static final String B_PATH = System.getProperty("user.dir") + "/src/assets/b.txt";
     final static Charset ENCODING = StandardCharsets.UTF_8;
 
-    public static final int DIAMETR = 2;
-    public static final int MATRIX_SIZE = 5;
+    public static final int DIAMETR = 3;
+    public static final int MATRIX_SIZE = 6;
 
     private int matrixSize;
     private static Float[][] al;
